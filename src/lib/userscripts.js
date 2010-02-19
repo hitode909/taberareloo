@@ -134,11 +134,10 @@ UserScripts.register([
               var feed = get_active_feed();
               var item = get_active_item(true);
               var target = item.element;
-              var text = Object.toJSON({
-                feed: feed.channel.link
-              });
               var ev = document.createEvent('MessageEvent');
-              ev.initMessageEvent('Taberareloo.LDR', true, false, text, location.protocol+"//"+location.host, "", window);
+              ev.initMessageEvent('Taberareloo.LDR', true, false, {
+                feed: feed.channel.link
+              }, location.protocol+"//"+location.host, "", window);
               target.dispatchEvent(ev);
             }catch(e){}
           });
@@ -150,7 +149,7 @@ UserScripts.register([
     fire  : function(ev){
       var target = ev.target;
       addElementClass($X('ancestor::div[starts-with(@id, "item_count")]/parent::div', target)[0], 'TBRL_posted');
-      var data = JSON.parse(ev.data);
+      var data = e.data;
       var body = $X('ancestor::div[starts-with(@id, "item_count")]/parent::div//div[@class="item_body"]', target)[0];
       var sel = createFlavoredString(window.getSelection());
       var ctx = update({
@@ -269,12 +268,10 @@ UserScripts.register([
       var ev_name = 'LDRize.status.Taberareloo'+(++this.count);
       document.addEventListener(ev_name, function(e){
         document.removeEventListener(ev_name, arguments.callee, false);
-        var data = JSON.parse(e.data);
-        ret.callback(data);
+        ret.callback(e.data);
       }, false);
-      var message = JSON.stringify({type: ev_name });
       var ev = document.createEvent('MessageEvent');
-      ev.initMessageEvent('LDRize.getStatus', true, false, message, location.protocol + '//' + location.host, '', window);
+      ev.initMessageEvent('LDRize.getStatus', true, false, {type: ev_name}, location.protocol + '//' + location.host, '', window);
       document.dispatchEvent(ev);
       return ret;
     },
@@ -296,9 +293,8 @@ UserScripts.register([
           }, 0);
         }
       }, false);
-      var message = JSON.stringify({type: ev_name });
       var ev = document.createEvent('MessageEvent');
-      ev.initMessageEvent('LDRize.strokePins', true, false, message, location.protocol + '//' + location.host, '', window);
+      ev.initMessageEvent('LDRize.strokePins', true, false, {type: ev_name}, location.protocol + '//' + location.host, '', window);
       document.dispatchEvent(ev);
       return ret;
     },
@@ -310,9 +306,8 @@ UserScripts.register([
         document.removeEventListener(ev_name, arguments.callee, false);
         ret.callback();
       }, false);
-      var message = JSON.stringify({type: ev_name });
       var ev = document.createEvent('MessageEvent');
-      ev.initMessageEvent('LDRize.clearPins', true, false, message, location.protocol + '//' + location.host, '', window);
+      ev.initMessageEvent('LDRize.clearPins', true, false, {type: ev_name}, location.protocol + '//' + location.host, '', window);
       document.dispatchEvent(ev);
       return ret;
     },
