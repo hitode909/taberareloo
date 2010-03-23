@@ -306,11 +306,12 @@ var TBRL = {
             break;
         }
       } else {
-        if(ctx.linkUrl){
+        if(content.linkUrl){
           ctx.onLink = true;
           ctx.link = ctx.target  = $N('a', {
-            src: content.linkUrl
+            href: content.linkUrl
           });
+          ctx.title = content.linkUrl;
         }
       }
     }
