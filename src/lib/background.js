@@ -1,5 +1,4 @@
 // vim: fileencoding=utf-8
-
 function backgroundAlert(message){
   alert(message);
 }
@@ -238,6 +237,7 @@ function getSelected(){
 var TBRL = {
   // default config
   VERSION: '1.1.17',
+  ID: chrome.extension.getURL('').match(/chrome-extension:\/\/([^\/]+)\//)[1],
   Config: {
     "services": {
     },
@@ -480,5 +480,18 @@ var onRequestsHandlers = {
 chrome.extension.onRequest.addListener(function(req, sender, func){
   var handler = onRequestsHandlers[req.request];
   handler && handler.apply(this, arguments);
+});
+
+chrome.experimental.contextMenu.create({
+  title: 'Share - Taberareloo',
+  contexts: ["ALL"],
+  onclick: function(info, tab){
+    console.log(info);
+    chrome.tabs.sendRequest(tab.id, {
+      request: 'contextMenu',
+      content: info
+    }, function(){
+    });
+  },
 });
 

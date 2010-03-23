@@ -271,6 +271,48 @@ var TBRL = {
       return JSON.stringify(arg);
     }).join(',')
     location.href = "javascript:void ("+encodeURIComponent(func.toString())+")("+args+")";
+  },
+  contextMenu: function(content){
+    var sel = createFlavoredString(window.getSelection());
+    var ctx = update({
+      document :document,
+      window : window,
+      title : document.title,
+      selection : (!!sel.raw)? sel : null,
+      target : TBRL.getTarget() || document.documentElement,
+      contextMenu : true,
+    }, window.location);
+    if(ctx.target){
+      ctx.link    = $X('./ancestor-or-self::a', ctx.target)[0];
+      switch(content.mediaType){
+        // 擬似的にelementを再構築する => 従来のExtractorをそのまま再利用できる
+        case "LINK":
+          ctx.onLink = true;
+          ctx.target  = $N('a', {
+            src: content.linkUrl
+          });
+          break;
+        case "IMAGE":
+          ctx.onImage = true;
+          ctx.target  = $N('img', {
+            src: content.srcUrl
+          });
+          break;
+        case "VIDEO":
+          ctx.onVideo = true;
+          ctx.target  = $N('video', {
+            src: content.srcUrl
+          });
+          break;
+        case "AUDIO":
+          ctx.onVideo = true;
+          ctx.target  = $N('audio', {
+            src: content.srcUrl
+          });
+          break;
+      }
+    }
+    TBRL.share(ctx, Extractors.check(ctx)[0], true);
   }
 }
 
@@ -341,5 +383,9 @@ chrome.extension.onRequest.addListener(function(req, sender, func){
         }, ps));
       });
     });
+  } else if(req.request === 'contextMenu'){
+    func({});
+    return TBRL.contextMenu(req.content);
   }
 });
+
