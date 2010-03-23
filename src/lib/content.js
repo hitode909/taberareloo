@@ -283,12 +283,11 @@ var TBRL = {
       contextMenu : true,
     }, window.location);
     if(ctx.target){
-      ctx.link    = $X('./ancestor-or-self::a', ctx.target)[0];
       switch(content.mediaType){
         // 擬似的にelementを再構築する => 従来のExtractorをそのまま再利用できる
         case "LINK":
           ctx.onLink = true;
-          ctx.target  = $N('a', {
+          ctx.link = ctx.target  = $N('a', {
             src: content.linkUrl
           });
           break;
