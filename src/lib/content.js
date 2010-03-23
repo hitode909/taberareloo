@@ -283,32 +283,35 @@ var TBRL = {
       contextMenu : true,
     }, window.location);
     if(ctx.target){
-      switch(content.mediaType){
-        // 擬似的にelementを再構築する => 従来のExtractorをそのまま再利用できる
-        case "LINK":
+      if(content.mediaType){
+        switch(content.mediaType){
+          // 擬似的にelementを再構築する => 従来のExtractorをそのまま再利用できる
+          case "IMAGE":
+            ctx.onImage = true;
+            ctx.target  = $N('img', {
+              src: content.srcUrl
+            });
+            break;
+          case "VIDEO":
+            ctx.onVideo = true;
+            ctx.target  = $N('video', {
+              src: content.srcUrl
+            });
+            break;
+          case "AUDIO":
+            ctx.onVideo = true;
+            ctx.target  = $N('audio', {
+              src: content.srcUrl
+            });
+            break;
+        }
+      } else {
+        if(ctx.linkUrl){
           ctx.onLink = true;
           ctx.link = ctx.target  = $N('a', {
             src: content.linkUrl
           });
-          break;
-        case "IMAGE":
-          ctx.onImage = true;
-          ctx.target  = $N('img', {
-            src: content.srcUrl
-          });
-          break;
-        case "VIDEO":
-          ctx.onVideo = true;
-          ctx.target  = $N('video', {
-            src: content.srcUrl
-          });
-          break;
-        case "AUDIO":
-          ctx.onVideo = true;
-          ctx.target  = $N('audio', {
-            src: content.srcUrl
-          });
-          break;
+        }
       }
     }
     TBRL.share(ctx, Extractors.check(ctx)[0], true);
