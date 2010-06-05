@@ -236,7 +236,7 @@ function getSelected(){
 
 var TBRL = {
   // default config
-  VERSION: '1.1.17',
+  VERSION: '1.1.20',
   ID: chrome.extension.getURL('').match(/chrome-extension:\/\/([^\/]+)\//)[1],
   Config: {
     "services": {
@@ -272,7 +272,8 @@ var TBRL = {
     "entry"   : {
       "trim_reblog_info"  : false,
       "not_convert_text"  : true,
-      "thumbnail_template": ""
+      "thumbnail_template": "",
+      "twitter_template"  : ""
     }
   },
   Service: {
@@ -333,10 +334,7 @@ var TBRL = {
   Popup: {
     count: 0,
     open: function(tab, ps){
-      var height = 'height=300';
-      if(ps.type === 'quote' || ps.type === 'regular'){
-        height = 'height=250'
-      }
+      var height = 'height=200';
       var id = 'QuickPost'+(TBRL.Popup.count++);
       var query = queryString({
         'quick' : 'true',

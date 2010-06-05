@@ -856,7 +856,7 @@ Models.register({
 
 Models.register({
   name : 'GoogleBookmarks',
-  ICON : Models.Google.ICON,
+  ICON : 'https://www.google.com/bookmarks/api/static/images/favicon.ico',
   LINK : 'http://www.google.com/bookmarks/',
   LOGIN_URL : 'https://www.google.com/accounts/ServiceLogin',
 
@@ -1078,7 +1078,21 @@ Models.register({
   },
 
   post : function(ps){
-    return this.update(joinText([ps.description, (ps.body)? '"' + ps.body + '"' : '', ps.item, ps.itemUrl], ' '));
+    var template = TBRL.Config['entry']['twitter_template'];
+    if(!template){
+      return this.update(joinText([ps.description, (ps.body)? '"' + ps.body + '"' : '', ps.item, ps.itemUrl], ' '));
+    } else {
+      return this.update(templateExtract(template,{
+        description   : ps.description,
+        description_q : (ps.description) ? '"'+ps.description+'"' : null,
+        body          : ps.body,
+        body_q        : (ps.body) ? '"'+ps.body+'"' : null,
+        title         : ps.item,
+        title_q       : (ps.item) ? '"'+ps.item+'"' : null,
+        link          : ps.itemUrl,
+        link_q        : (ps.itemUrl) ? '"'+ps.itemUrl+'"' : null
+      }));
+    }
   },
 
   update : function(status){
@@ -1658,7 +1672,7 @@ Models.register({
   ICON : 'http://naver.jp/favicon.ico',
   POST_URL : 'http://naver.jp/api/post/html/mainboard',
   LOGIN_URL: 'https://ssl.naver.jp/login?fromUrl=http://pick.naver.jp/',
-  HOME_URL : 'http://www.naver.jp/',
+  TOKEN_URL: 'http://naver.jp/api/apiToken',
   LINK : 'http://pick.naver.jp/',
   SHORTEN_SERVICE : 'bit.ly',
 
@@ -1666,21 +1680,23 @@ Models.register({
     return (/(regular|photo|quote|link|video)/).test(ps.type) && !ps.file;
   },
 
-  checkAuth : function() {
+  getToken : function() {
     var self = this;
-    return request(this.HOME_URL).addCallback(function(res) {
-      var login = res.responseText.extract(/(span class="logout")/);
-      if (!login) {
+    return request(this.TOKEN_URL, { headers : { 'Accept': 'application/json' }}).addCallback(function(res) {
+      var data = JSON.parse(res.responseText);
+      if (!data['apiToken']) {
+        delete self['apiToken'];
         throw new Error(chrome.i18n.getMessage('error_notLoggedin', self.name));
       }
-      return true;
+      self.apiToken = data['apiToken'];
+      return self.apiToken;
     });
   },
 
-  post : function(ps){
+  post : function(ps) {
     var self = this;
-    return this.checkAuth().addCallback(function(ok) {
-      return self.update(joinText([ps.body, ps.description], "\n", true), ps);
+    return this.getToken().addCallback(function(ok) {
+      return self.update(joinText([ps.body, ps.description], "¥n", true), ps);
     });
   },
 
@@ -1691,7 +1707,7 @@ Models.register({
     ).addCallback(function(status) {
       var typeCode = 'U';
       var media = {};
-      if (ps.type == 'photo') {
+      if (ps.type === 'photo') {
         typeCode = 'I';
         media.mediaUrl = ps.pageUrl;
         media.mediaThumbnailUrl = ps.itemUrl;
@@ -1705,7 +1721,7 @@ Models.register({
         headers : {
           'Accept': 'application/json',
           'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8, application/json',
-
+          'Api-Token': self.apiToken
         },
         sendContent : JSON.stringify({
           serviceTypeCode: 'P',
