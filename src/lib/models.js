@@ -1006,8 +1006,9 @@ Models.hatenaBlog = {
   },
 
   generateHeaders: function(userName, apiKey) {
-    // TODO
-    return {};
+    return {
+      'X-WSSE' : wsseHeader(userName, apiKey)
+    };
   },
 
   // @param data { userName, title, body, isDraft }
