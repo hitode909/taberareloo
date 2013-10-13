@@ -1006,6 +1006,7 @@ Models.hatenaBlog = {
   },
 
   generateHeaders: function(userName, apiKey) {
+    // XXX: wsse.js exports wsseHeader function globally.
     return {
       'X-WSSE' : wsseHeader(userName, apiKey)
     };
